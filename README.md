@@ -1,2 +1,4 @@
-# Visor_Calles_Alcoy
-Visor con la anchura de las calles de Alcoy (datos facilitados por el CNIG)
+# Visor_Sendas_Alcoy
+Visor sendas Alcoy
+
+pr cv 133.1 > https://www.femecv.com/senderos/pr-cv-1331
