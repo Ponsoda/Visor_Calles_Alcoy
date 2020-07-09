@@ -1,4 +1,9 @@
-# Visor_Sendas_Alcoy
-Visor sendas Alcoy
+# Visor tracks
 
-pr cv 133.1 > https://www.femecv.com/senderos/pr-cv-1331
+Page under construction!
+
+Visor tracks for the city of Alcoy (Spain) -so far-.
+
+Sidebar code source: https://github.com/Turbo87/sidebar-v2
+
+Tracks (mainly) source: https://www.femecv.com/senderos/
