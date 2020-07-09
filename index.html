@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Senderos Alcoy</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="https://cdn.leafletjs.com/leaflet-0.7.2/leaflet.ie.css" /><![endif]-->
+
+    <link rel="stylesheet" href="leaflet-sidebar.css" />
+    <script src="layers.js"></script>
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+            font: 10pt "Helvetica Neue", Arial, Helvetica, sans-serif;
+        }
+
+        .lorem {
+            font-style: italic;
+            color: #AAA;
+        }
+        /* Add a black background color to the top navigation bar */
+        .topnav {
+        overflow: hidden;
+        background-color: #e9e9e9;
+        }
+
+        /* Style the links inside the navigation bar */
+        .topnav a {
+        float: left;
+        display: block;
+        color: black;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+        }
+
+        /* Change the color of links on hover */
+        .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+        }
+
+        /* Style the "active" element to highlight the current page */
+        .topnav a.active {
+        background-color: #2196F3;
+        color: white;
+        }
+
+        /* Style the search box inside the navigation bar */
+        .topnav input[type=text] {
+        float: right;
+        padding: 6px;
+        border: none;
+        margin-top: 8px;
+        margin-right: 16px;
+        font-size: 17px;
+        }
+
+        /* When the screen is less than 600px wide, stack the links and the search field vertically instead of horizontally */
+        @media screen and (max-width: 600px) {
+        .topnav a, .topnav input[type=text] {
+            float: none;
+            display: block;
+            text-align: left;
+            width: 100%;
+            margin: 0;
+            padding: 14px;
+        }
+        .topnav input[type=text] {
+            border: 1px solid #ccc;
+        }
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar" class="sidebar collapsed">
+        <!-- Nav tabs -->
+        <div class="sidebar-tabs">
+            <ul role="tablist">
+                <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+                <li><a href="#profile" role="tab"><i class="fa fa-user"></i></a></li>
+                <li><a href="https://github.com/Turbo87/sidebar-v2" role="tab" target="_blank"><i class="fa fa-github"></i></a></li>
+            </ul>
+            <ul role="tablist">
+                <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- Tab panes -->
+        <div class="sidebar-content">
+            <div class="sidebar-pane" id="home">
+                <h1 class="sidebar-header">Lista de rutas<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <div class="topnav">
+                    <input type="text" placeholder="Search..">
+                </div>
+                <p class="lorem text-justify" id="list_layers"></p>
+            </div>
+            <div class="sidebar-pane" id="profile">
+                <h1 class="sidebar-header" id="busqueda_rutas">Ruta<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <p class="lorem text-justify" id="single_layer"></p>
+            </div>
+            <div class="sidebar-pane" id="settings">
+                <h1 class="sidebar-header">Fuente<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <p>Selecciona una ruta en el buscador o realiza un click sobre ella para ver información relacionada con ella</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="map" class="sidebar-map"></div>
+
+    <a href="https://github.com/Turbo87/sidebar-v2/"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="leaflet-sidebar.js"></script>
+
+    <script>
+        var map = L.map('map');
+        map.setView([38.69,-0.48], 13);
+
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: 'Map data &copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var sidebar = L.control.sidebar('sidebar').addTo(map);
+
+        // $.getJSON("https://raw.githubusercontent.com/Ponsoda/Visor_Senderos_Alcoy/master/pr_cv_133.1.geojson", function(response) {
+        //     console.log("response", response.name);
+        //     $('#list_layers').html(response.name);
+        //     var geojsonLayer = new L.GeoJSON(response);
+        //     geojsonLayer.addTo(map);    
+        // });
+
+        // layerGeo = L.geoJson(layer)
+
+	    // layerGeo.on('click', function(e) {
+        //     console.log(e)
+		//     $('#single_layer').html("b"+e);
+        // }).addTo(map);
+
+        function getColor(d) {
+            return d == "gr" ? '#FF0000' :
+                   d == "pr" ? '#FFFF33' :
+                   d == "rl" ? '#32CD32' :
+                              '#FFFFFF';
+        }
+        //getColor(feature.properties.class)
+        function style(feature) {
+            return {
+                color:  getColor(feature.properties.class),
+                weight: 3,
+                opacity: 2,
+                fillOpacity: 1
+            };
+        }
+
+        // var myStyle = {
+        //     "color": "#ff7800",
+        //     "weight": 5,
+        //     "opacity": 0.65
+        // };
+
+        var layerCultural = L.geoJson(layerGeo, {
+            onEachFeature: function(feature, layer) {
+                layer.setStyle(style(feature))
+                $('#list_layers').append("<p id='"+feature.properties.code+"'>"+feature.properties.name+ "</p>");
+                layer.bindPopup("<h5 class='infoHeader'><strong>" + feature.properties.name);
+                layer.on('click', function(e) {
+                    $('#busqueda_rutas').html(e.target.feature.properties.code+"<span  class='sidebar-close'><i class='fa fa-caret-left'></i></span>");
+                    $('#single_layer').html("<p> Nombre:"+e.target.feature.properties.name+"</p>"+
+                    "<p> Código: "+e.target.feature.properties.code+"</p>"+
+                    "<p> Dificultad: "+e.target.feature.properties.dificultad+"</p>"+
+                    "<p> Distancia: "+e.target.feature.properties.distancia+"</p>");
+                });
+                
+                // $('.sidebar-header').html(feature.properties.nombre);
+            }
+        }).addTo(map);
+        
+    </script>
+</body>
+</html>
